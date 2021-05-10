@@ -1,0 +1,14 @@
+kubeadm token list ### join token check
+
+kubectl expose pod nginx --type=NodePort --port=80 ### external service 
+
+kubectl get service ### 서비스 확인
+
+kubectl run nginx --image=nginx ### application install
+
+
+kubectl create deployment deploy-nginx --image=nginx ### deployment application install
+
+kubectl scale deployment deploy-nginx --replicas=3 ### deployment pod increase 
+
+kubectl get pods -n kube-system ### kubernetes system
