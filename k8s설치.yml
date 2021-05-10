@@ -1,0 +1,73 @@
+***************** docker install****************
+yum -y install docker
+
+systemctl start docker
+systemctl enable docker
+
+************************************************
+
+
+
+***************** firewalld config *************
+
+systemctl stop firewalld
+systemctl disable firewalld
+
+cat /etc/selinux/config
+SELINUX=permissive
+
+************************************************
+
+
+
+******************ALL_NODE CONFIG***************
+
+swapoff -a
+vim /etc/fstab
+#/dev/mapper/cl-swap swap swap defaults 0 0
+
+cat /etc/sysctl.d/k8s.conf
+net.bridge.bridge-nf-call-ip6tables = 1
+net.bridge.bridge-nf-call-iptables = 1
+
+sysctl --system
+
+cat /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-$basearch
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+
+yum -y install kubeadm kubelet kubectl
+systemctl enable kubelet
+
+*************************************************
+
+
+****************Master-Node-config***************
+
+
+kubeadm init --token 123456.1234567890123456 --token-ttl 0  --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address=192.168.0.10
+
+mkdir -p $HOME/.kube
+cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+chown $(id -u):$(id -g) $HOME/.kube/config
+
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+
+kubectl get nodes
+
+**************************************************
+
+
+*******************NODE-Config********************
+
+kubeadm join --token 123456.1234567890123456 --discovery-token-unsafe-skip-ca-verification 192.168.0.10:6443
+
+
+***************************************************
+
+
